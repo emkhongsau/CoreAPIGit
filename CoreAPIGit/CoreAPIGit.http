@@ -1,0 +1,6 @@
+@CoreAPIGit_HostAddress = http://localhost:5186
+
+GET {{CoreAPIGit_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
