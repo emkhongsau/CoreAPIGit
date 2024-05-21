@@ -1,4 +1,8 @@
+using CoreAPIGit.Common;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using System.Data;
 
 namespace CoreAPIGit.Controllers
 {
@@ -6,28 +10,24 @@ namespace CoreAPIGit.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
+        public static IConfiguration _configuration;
+        public WeatherForecastController(IConfiguration configuration)
         {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-        private readonly ILogger<WeatherForecastController> _logger;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
-        {
-            _logger = logger;
+            _configuration = configuration;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        public string Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            var Connection = Functions.GetConfig_CS("MyConnectionString");
+            //Database db = new Database(Connection);
+            DataSet ds = Functions.db.ExecuteSPReturnDS("xp_sessionchat_getpage", new string[]{ "userisn", "botchatsisn" }, new object[] { 1004, 2001 });
+            if(Functions.NotEmpty(ds))
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+
+                return JsonConvert.SerializeObject(ds.Tables[0]);
+            }
+            return "";
         }
     }
 }
